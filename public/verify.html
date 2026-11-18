@@ -1,0 +1,7 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Verificar</title></head>
+<body><h1>Verificando…</h1><pre id="o"></pre>
+<script>(async () => {
+  const t = new URLSearchParams(location.search).get('token');
+  const r = await fetch('/api/verify', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ token: t }) });
+  document.getElementById('o').textContent = JSON.stringify(await r.json(), null, 2);
+})();</script></body></html>

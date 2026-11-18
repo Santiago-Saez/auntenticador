@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Auth demo</title>
+<style>body{font-family:system-ui;max-width:640px;margin:2rem auto;padding:0 1rem}form{border:1px solid #ddd;padding:1rem;margin:1rem 0}input{display:block;margin:.4rem 0;width:100%;padding:.5rem}button{padding:.5rem 1rem}#out{white-space:pre-wrap;background:#f6f6f6;padding:1rem}</style>
+</head>
+<body>
+<h1>Autenticación (demo)</h1>
+
+<form id="f-reg"><h3>Registro</h3>
+<input name="email" type="email" placeholder="correo" required>
+<input name="password" type="password" placeholder="contraseña (mín. 12)" required>
+<button>Registrar</button></form>
+
+<form id="f-login"><h3>Login</h3>
+<input name="email" type="email" placeholder="correo" required>
+<input name="password" type="password" placeholder="contraseña" required>
+<button>Entrar</button></form>
+
+<form id="f-recover"><h3>Recuperar</h3>
+<input name="email" type="email" placeholder="correo" required>
+<button>Enviar enlace</button></form>
+
+<div>
+<button id="b-me">Ver perfil</button>
+<button id="b-sessions">Ver sesiones</button>
+<button id="b-revoke">Revocar otras sesiones</button>
+<button id="b-logout">Logout</button>
+</div>
+
+<form id="f-pass"><h3>Cambiar contraseña</h3>
+<input name="currentPassword" type="password" placeholder="actual" required>
+<input name="newPassword" type="password" placeholder="nueva (mín. 12)" required>
+<button>Cambiar</button></form>
+
+<pre id="out"></pre>
+<script>
+const out = (x) => document.getElementById('out').textContent = JSON.stringify(x, null, 2);
+async function call(path, body, method = 'POST') {
+  const r = await fetch(path, { method, headers: {'Content-Type':'application/json'}, body: body ? JSON.stringify(body) : undefined });
+  out({ status: r.status, body: await r.json().catch(() => ({})) });
+}
+const form = (id, path) => document.getElementById(id).addEventListener('submit', e => {
+  e.preventDefault();
+  call(path, Object.fromEntries(new FormData(e.target).entries()));
+});
+form('f-reg', '/api/register');
+form('f-login', '/api/login');
+form('f-recover', '/api/recover');
+form('f-pass', '/api/change-password');
+document.getElementById('b-me').onclick = async () => { const r = await fetch('/api/me'); out(await r.json()); };
+document.getElementById('b-sessions').onclick = async () => { const r = await fetch('/api/sessions'); out(await r.json()); };
+document.getElementById('b-revoke').onclick = () => call('/api/sessions', null, 'DELETE');
+document.getElementById('b-logout').onclick = () => call('/api/logout');
+</script>
+</body>
+</html>
